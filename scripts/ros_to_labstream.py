@@ -57,13 +57,14 @@ def main():
 
     while not rospy.is_shutdown():
 
+
         mysample1 = [rand() for _ in range(n_channels)]
         mysample2 = [rand() for _ in range(n_channels)]
 
         outlet1.push_sample(mysample1)
         outlet2.push_sample(mysample2)
 
-        rospy.spin()
+        rospy.sleep(0)
 
 
 if  __name__ == '__main__':
