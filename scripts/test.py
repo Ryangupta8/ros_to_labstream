@@ -43,7 +43,6 @@ def main():
     name2 = 'hsr_state'
     type = 'xy_rxryrzrw'
     n_channels = 6
-    r = rospy.Rate(10) # 10hz
 
     info1 = StreamInfo(name1, type, n_channels, srate, 'float32', 'spot_state')
     info2 = StreamInfo(name2, type, n_channels, srate, 'float32', 'hsr_state')
@@ -54,23 +53,18 @@ def main():
     rospy.init_node('ros_to_labstream')
 
     rospy.Subscriber("/hsr/global_pose", PoseWithCovarianceStamped, listener.hsr_pose_callback)
-    rospy.Subscriber("/a1_950/global_pose", PoseWithCovarianceStamped, listener.spot_pose_callback)
+    rospy.Subscriber("/spot/global_pose", PoseWithCovarianceStamped, listener.spot_pose_callback)
 
     while not rospy.is_shutdown():
 
 
-        mysample1 = [listener.spot_pose.position.x, listener.spot_pose.position.y,
-                listener.spot_pose.orientation.x, listener.spot_pose.orientation.y,
-                listener.spot_pose.orientation.z, listener.spot_pose.orientation.w]
-        # print("mysample = ", mysample1)
-        mysample2 = [listener.hsr_pose.position.x, listener.hsr_pose.position.y,
-                listener.hsr_pose.orientation.x, listener.hsr_pose.orientation.y,
-                listener.hsr_pose.orientation.z, listener.hsr_pose.orientation.w]
+        mysample1 = [rand() for _ in range(n_channels)]
+        mysample2 = [rand() for _ in range(n_channels)]
 
         outlet1.push_sample(mysample1)
         outlet2.push_sample(mysample2)
 
-        r.sleep()
+        rospy.sleep(0)
 
 
 if  __name__ == '__main__':
