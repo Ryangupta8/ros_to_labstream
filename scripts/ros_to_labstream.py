@@ -16,25 +16,26 @@ from pylsl import StreamInfo, StreamOutlet, local_clock
 class Listener:
     def __init__(self):
         self.spot_pose = Pose()
-        self.hsr_pose = Pose()
+        self.go1_pose = Pose()
 
-    def a1_pose_callback(self, data):
-        self.hsr_pose.position.x = data.pose.pose.position.x
-        self.hsr_pose.position.y = data.pose.pose.position.y
-        self.hsr_pose.orientation.x = data.pose.pose.orientation.x
-        self.hsr_pose.orientation.y = data.pose.pose.orientation.y
-        self.hsr_pose.orientation.z = data.pose.pose.orientation.z
-        self.hsr_pose.orientation.w = data.pose.pose.orientation.w
-        print("a1 callkback")
+
+    def go1_pose_callback(self, data):
+        self.go1_pose.position.x = data.pose.position.x
+        self.go1_pose.position.y = data.pose.position.y
+        self.go1_pose.orientation.x = data.pose.orientation.x
+        self.go1_pose.orientation.y = data.pose.orientation.y
+        self.go1_pose.orientation.z = data.pose.orientation.z
+        self.go1_pose.orientation.w = data.pose.orientation.w
+        print("go1 callback")
 
     def spot_pose_callback(self, data):
-        self.spot_pose.position.x = data.pose.pose.position.x
-        self.spot_pose.position.y = data.pose.pose.position.y
-        self.spot_pose.orientation.x = data.pose.pose.orientation.x
-        self.spot_pose.orientation.y = data.pose.pose.orientation.y
-        self.spot_pose.orientation.z = data.pose.pose.orientation.z
-        self.spot_pose.orientation.w = data.pose.pose.orientation.w
-        print("spot callkback")
+        self.spot_pose.position.x = data.pose.position.x
+        self.spot_pose.position.y = data.pose.position.y
+        self.spot_pose.orientation.x = data.pose.orientation.x
+        self.spot_pose.orientation.y = data.pose.orientation.y
+        self.spot_pose.orientation.z = data.pose.orientation.z
+        self.spot_pose.orientation.w = data.pose.orientation.w
+        print("spot callback")
 
 
 def main():
@@ -42,12 +43,13 @@ def main():
 
     srate = 10 # Hz
     name1 = 'spot_state'
-    name2 = 'a1_state'
+
+    name2 = 'go1_state'
     type = 'xy_rxryrzrw'
     n_channels = 6
     
     info1 = StreamInfo(name1, type, n_channels, srate, 'float32', 'spot_state')
-    info2 = StreamInfo(name2, type, n_channels, srate, 'float32', 'a1_state')
+    info2 = StreamInfo(name2, type, n_channels, srate, 'float32', 'go1_state')
 
     outlet1 = StreamOutlet(info1)
     outlet2 = StreamOutlet(info2)
@@ -55,8 +57,10 @@ def main():
     rospy.init_node('ros_to_labstream')
     r = rospy.Rate(10) # 10hz
 
-    rospy.Subscriber("/spot/global_pose", PoseWithCovarianceStamped, listener.spot_pose_callback)
-    rospy.Subscriber("/a1_950/global_pose", PoseWithCovarianceStamped, listener.a1_pose_callback)
+
+    rospy.Subscriber("/go1/localization_ros", PoseStamped, listener.go1_pose_callback)
+    rospy.Subscriber("/gcr_spot/localization_ros", PoseStamped, listener.spot_pose_callback)
+
     curr_time = time.clock()
     prev_time = time.clock()
 
@@ -64,15 +68,16 @@ def main():
 
         curr_time = time.clock()
 
-        mysample1 = [rand() for _ in range(n_channels)]
-        # mysample1 = [listener.spot_pose.position.x, listener.spot_pose.position.y,
-        #         listener.spot_pose.orientation.x, listener.spot_pose.orientation.y,
-        #         listener.spot_pose.orientation.z, listener.spot_pose.orientation.w]
+        # mysample1 = [rand() for _ in range(n_channels)]
+        mysample1 = [listener.spot_pose.position.x, listener.spot_pose.position.y,
+                listener.spot_pose.orientation.x, listener.spot_pose.orientation.y,
+                listener.spot_pose.orientation.z, listener.spot_pose.orientation.w]
         # print("mysample = ", mysample1)
         # mysample2 = [rand() for _ in range(n_channels)]
-        mysample2 = [listener.hsr_pose.position.x, listener.hsr_pose.position.y,
-                listener.hsr_pose.orientation.x, listener.hsr_pose.orientation.y,
-                listener.hsr_pose.orientation.z, listener.hsr_pose.orientation.w]
+
+        mysample2 = [listener.go1_pose.position.x, listener.go1_pose.position.y,
+                listener.go1_pose.orientation.x, listener.go1_pose.orientation.y,
+                listener.go1_pose.orientation.z, listener.go1_pose.orientation.w]
 
         if curr_time - prev_time >= 0.08:
             print("output")
