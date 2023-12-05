@@ -80,7 +80,7 @@ def main():
                 listener.go1_pose.orientation.z, listener.go1_pose.orientation.w]
 
         if curr_time - prev_time >= 0.08:
-            print("output")
+            rospy.loginfo("output")
             outlet1.push_sample(mysample1)
             outlet2.push_sample(mysample2)
             prev_time = curr_time
